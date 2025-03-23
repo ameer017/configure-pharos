@@ -14,6 +14,16 @@ async function initProject() {
 
     const answers = {};
 
+    // Prompt for project name
+    const projectNameResponse = await prompt({
+      type: "text",
+      name: "projectName",
+      message: "Enter a name for your directory:",
+      validate: (input) =>
+        input.trim() !== "" || "directory name cannot be empty!",
+    });
+    answers.projectName = projectNameResponse.projectName.trim();
+
     const contractResponse = await prompt({
       type: "select",
       name: "contractType",
@@ -32,25 +42,35 @@ async function initProject() {
       answers.framework = frameworkResponse.framework;
     }
 
+    const frontendResponse = await prompt({
+      type: "select",
+      name: "frontend",
+      message: "Choose a frontend framework:",
+      choices: ["React (Vite)", "Vue.js", "None"],
+    });
+    answers.frontend = frontendResponse.frontend;
+
     console.log(
       chalk.blue(
-        `\n📁 Setting up ${answers.contractType} project${
-          answers.framework ? ` with ${answers.framework}` : ""
-        }...\n`
+        `\n📁 Setting up ${answers.contractType} project with name "${answers.projectName}"...\n`
       )
     );
 
-    // Create project directory
-    const projectDir = path.join(process.cwd(), "smart-contract");
+    // Use the custom project name
+    const projectDir = path.join(process.cwd(), answers.projectName);
     if (!fs.existsSync(projectDir)) {
       fs.mkdirSync(projectDir, { recursive: true });
+    }
+
+    if (answers.frontend !== "None") {
+      await setupFrontend(answers.frontend, projectDir);
     }
 
     if (answers.contractType === "Solidity (EVM)") {
       await checkPrerequisites(answers.framework);
     }
 
-    // Setup project
+    // Setup the smart contract project
     if (answers.contractType === "Solidity (EVM)") {
       await setupSolidity(answers.framework, projectDir, answers);
     } else if (answers.contractType === "Rust (WASM)") {
@@ -65,6 +85,7 @@ async function initProject() {
     console.log(
       chalk.green(
         `\n✅ Project initialized! Run the following commands 👇🏽\n\n` +
+          chalk.blue(`cd ${answers.projectName}\n`) +
           chalk.blue("cd smart-contract\n") +
           chalk.blue("configure-pharos-sdk compile\n\n") +
           "to compile your contract."
@@ -114,6 +135,9 @@ async function checkPrerequisites(framework) {
 
 async function setupSolidity(framework, projectDir, answers) {
   try {
+    const contractDir = path.join(projectDir, "smart-contract");
+    fs.mkdirSync(contractDir, { recursive: true });
+
     const templatePath = path.join(
       __dirname,
       "../templates/solidity/contract.sol"
@@ -121,24 +145,24 @@ async function setupSolidity(framework, projectDir, answers) {
 
     if (framework === "Hardhat") {
       const destinationPath = path.join(
-        projectDir,
+        contractDir,
         "contracts",
         "contract.sol"
       );
-      fs.mkdirSync(path.join(projectDir, "contracts"), { recursive: true });
+      fs.mkdirSync(path.join(contractDir, "contracts"), { recursive: true });
       fs.copyFileSync(templatePath, destinationPath);
       console.log(
-        chalk.green(`✅ Solidity contract template copied for Hardhat!`)
+        chalk.green("✅ Solidity contract template copied for Hardhat!")
       );
-      await setupHardhat(projectDir, answers);
+      await setupHardhat(contractDir, answers);
     } else if (framework === "Foundry") {
-      const destinationPath = path.join(projectDir, "src", "Contract.sol");
-      fs.mkdirSync(path.join(projectDir, "src"), { recursive: true });
+      const destinationPath = path.join(contractDir, "src", "Contract.sol");
+      fs.mkdirSync(path.join(contractDir, "src"), { recursive: true });
       fs.copyFileSync(templatePath, destinationPath);
       console.log(
-        chalk.green(`✅ Solidity contract template copied for Foundry!`)
+        chalk.green("✅ Solidity contract template copied for Foundry!")
       );
-      await setupFoundry(projectDir, "src");
+      await setupFoundry(contractDir);
     }
   } catch (error) {
     throw new Error(`Solidity setup failed: ${error.message}`);
@@ -242,33 +266,21 @@ optimizer_runs = 200`;
 
 async function setupRust(projectDir) {
   try {
+    const contractDir = path.join(projectDir, "smart-contract");
+    fs.mkdirSync(contractDir, { recursive: true });
+
     console.log(chalk.blue("\n🔥 Setting up Rust project...\n"));
 
     const templatePath = path.join(__dirname, "../templates/rust/lib.rs");
-    const rustDir = path.join(projectDir, "src");
+    const rustSrcDir = path.join(contractDir, "src");
 
-    fs.mkdirSync(rustDir, { recursive: true });
-    fs.copyFileSync(templatePath, path.join(rustDir, "lib.rs"));
+    fs.mkdirSync(rustSrcDir, { recursive: true });
+    fs.copyFileSync(templatePath, path.join(rustSrcDir, "lib.rs"));
     console.log(chalk.green("✅ Rust contract template copied!"));
 
-    // Initialize Cargo project
-    shell.cd(projectDir);
+    shell.cd(contractDir);
     const { code } = shell.exec("cargo init --lib");
     if (code !== 0) throw new Error("Cargo initialization failed");
-
-    // Basic Cargo.toml configuration
-    const cargoConfig = `[package]
-name = "rust_project"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-stylus-sdk = "0.1.0"
-alloy-primitives = "0.2.0"
-ferris-says = "0.3.1"
-`;
-
-    fs.writeFileSync(path.join(projectDir, "Cargo.toml"), cargoConfig);
 
     console.log(chalk.green("\n✅ Rust project configured successfully!"));
   } catch (error) {
@@ -302,6 +314,34 @@ export default config;`
 module.exports = {
   ${commonConfig}
 };`;
+}
+
+async function setupFrontend(frontend, projectDir) {
+  try {
+    console.log(chalk.blue(`\n🚀 Setting up ${frontend} frontend...\n`));
+
+    const templatesDir = path.join(__dirname, "../templates");
+    const frontendDir = path.join(projectDir, "frontend");
+
+    let sourceDir;
+
+    if (frontend === "React (Vite)") {
+      sourceDir = path.join(templatesDir, "my-vite-app");
+    } else if (frontend === "Vue.js") {
+      sourceDir = path.join(templatesDir, "my-vue-app");
+    }
+
+    if (sourceDir && fs.existsSync(sourceDir)) {
+      shell.cp("-R", sourceDir, frontendDir);
+      console.log(
+        chalk.green(`✅ ${frontend} template copied successfully!\n`)
+      );
+    } else {
+      console.log(chalk.red(`❌ Error: ${frontend} template not found!`));
+    }
+  } catch (error) {
+    throw new Error(`Frontend setup failed: ${error.message}`);
+  }
 }
 
 module.exports = { initProject };

@@ -5,7 +5,7 @@
 
 </p>
 
-### Smart Contract SDK & Deployment Pipelines
+### 🏗️ Smart Contract SDK & Deployment Pipelines
 
 **configure-pharos-sdk** is a robust command-line interface (CLI) designed to simplify the development, compilation, testing, and deployment of smart contracts. It supports both Solidity (EVM) and Rust (WASM) environments, offering seamless integration with leading frameworks like Hardhat, Foundry, and Cargo.
 
@@ -17,6 +17,7 @@
 - ✔ One-command project setup: Initialize and configure your project effortlessly
 - ✔ Automated compilation, testing, and deployment
 - ✔ Cross-framework compatibility
+- ✔ Frontend scaffolding: Automatically generate a frontend template based on the selected framework
 
 ## 📥 Installation
 
@@ -68,6 +69,7 @@ configure-pharos-sdk init
 
 - Contract Type: Solidity (EVM) or Rust (WASM)
 - Development Framework (if Solidity): Hardhat or Foundry
+- Frontend Framework (optional): React (Vite) or None
 
 🔹 After initialization, Pharos will set up a structured project directory and generate a `pharos-config.json` file.
 
@@ -116,14 +118,26 @@ configure-pharos-sdk deploy
 After running `configure-pharos-sdk init`, your project will be structured as follows:
 
 ```bash
-/smart-contract
-│── /src
-│   ├── lib.rs           # Rust contract source (for Rust projects)
-│   ├── contracts/       # Solidity contract files (for Hardhat projects)
-│   ├── scripts/         # Deployment scripts (for Hardhat projects)
-│── Cargo.toml           # Rust package config (for Rust projects)
-│── pharos-config.json   # Stores project settings
-│── package.json         # Node dependencies (for Solidity projects)
+/project-root
+│── /smart-contract
+│   │── /src
+│   │   ├── lib.rs           # Rust contract source (for Rust projects)
+│   │   ├── contracts/       # Solidity contract files (for Hardhat/Foundry projects)
+│   │   ├── scripts/         # Deployment scripts (for Hardhat projects)
+│   │── Cargo.toml           # Rust package config (for Rust projects)
+│   │── package.json         # Node dependencies (for Solidity projects)
+│   │── pharos-config.json   # Stores project settings
+│
+│── /frontend                # Created if a frontend framework is chosen
+│   │── /src
+│   │   ├── App.jsx      # Reusable components
+│   │   ├── main.jsx          # Static assets like images, styles
+│   │── package.json         # Frontend dependencies
+│   │── index.html           # Main HTML entry file (Vite projects)
+│   │── vite.config.js       # Vite configuration (for React/Vue)
+│
+│── pharos-config.json       # Stores project-wide settings
+
 ```
 
 📌 Note:
@@ -132,6 +146,9 @@ After running `configure-pharos-sdk init`, your project will be structured as fo
 - Foundry projects do not require a `contracts/` directory but instead use `.sol` files directly.
 - Rust projects use `src/lib.rs` and `Cargo.toml` for configuration.
 
+- If a frontend framework is selected, configure-pharos-sdk generates a basic template.
+- Supports React (Vite) by default.
+
 ## ⚙️ Configuration File (pharos-config.json)
 
 When a project is initialized, Pharos generates a `pharos-config.json` file to store project settings:
@@ -139,7 +156,8 @@ When a project is initialized, Pharos generates a `pharos-config.json` file to s
 ```json
 {
   "contractType": "Solidity (EVM)",
-  "framework": "Hardhat"
+  "framework": "Hardhat",
+  "frontend": "React (Vite)"
 }
 ```
 
@@ -219,3 +237,8 @@ node index.js
 - 📧 Email: [Raji Abdullahi](mailto:rajiabdullahi907@gmail.com)
 - 🐦 Twitter: [@alAmeer170](https://twitter.com/alAmeer170)
 - 📘 GitHub: [Pharos CLI Repo](https://github.com/ameer017/configure-pharos.git)
+
+## 🔥 Ready to streamline your smart contract development?
+
+- Run: 
+`bash configure-pharos-sdk init` and get started! 🚀
