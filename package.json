@@ -1,0 +1,35 @@
+{
+  "name": "configure-pharos-sdk",
+  "version": "1.0.0",
+  "description": "A robust command-line interface (CLI) designed to simplify the development, compilation, testing, and deployment of smart contracts on Pharos Network. It supports both Solidity (EVM) and Rust (WASM) environments, offering seamless integration with leading frameworks like Hardhat, Foundry, and Cargo.",
+  "bin": {
+    "configure-pharos-sdk": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "blockchain",
+    "smart contracts",
+    "CLI",
+    "solidity",
+    "rust"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "enquirer": "^2.4.1",
+    "inquirer": "^12.4.3",
+    "shelljs": "^0.9.1"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  }
+}
