@@ -1,9 +1,9 @@
 <p align="center">
 
- <img width="300px" src="https://pbs.twimg.com/profile_banners/1785241793787043840/1736737016/1500x500" alt="Pharos" />
-</p>
+ <img width="500px" src="https://pbs.twimg.com/profile_banners/1785241793787043840/1736737016/1500x500" alt="Pharos" />
+   <h1 align="center">🌟 configure-pharos-sdk</h1>
 
-# 🌟 configure-pharos-sdk
+</p>
 
 ### Smart Contract SDK & Deployment Pipelines
 
