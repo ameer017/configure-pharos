@@ -1,3 +1,5 @@
+  <img width="120px" src="https://pbs.twimg.com/profile_banners/1785241793787043840/1736737016/1500x500" alt="Pharos" />
+
 # 🌟 configure-pharos-sdk
 
 ### Smart Contract SDK & Deployment Pipelines
@@ -188,7 +190,7 @@ Pharos CLI is an open-source project, and contributions are welcome!
 Clone the repo:
 
 ```bash
-git clone https://github.com/ameer017/pharos-cli.git
+git clone https://github.com/ameer017/configure-pharos.git
 ```
 
 Install dependencies:
@@ -211,6 +213,6 @@ node index.js
 
 🚀 Join the Pharos CLI community and contribute to the future of smart contract development!
 
-📧 Email: [Raji Abdullahi](mailto:rajiabdullahi907@gmail.com)
-🐦 Twitter: [@alAmeer170](https://twitter.com/alAmeer170)
-📘 GitHub: [Pharos CLI Repo](https://github.com/ameer017/pharos-cli)
+- 📧 Email: [Raji Abdullahi](mailto:rajiabdullahi907@gmail.com)
+- 🐦 Twitter: [@alAmeer170](https://twitter.com/alAmeer170)
+- 📘 GitHub: [Pharos CLI Repo](https://github.com/ameer017/configure-pharos.git)
