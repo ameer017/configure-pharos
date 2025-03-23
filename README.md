@@ -1,4 +1,7 @@
-  <img width="120px" src="https://pbs.twimg.com/profile_banners/1785241793787043840/1736737016/1500x500" alt="Pharos" />
+<p align="center">
+
+ <img width="120px" src="https://pbs.twimg.com/profile_banners/1785241793787043840/1736737016/1500x500" alt="Pharos" />
+</p>
 
 # 🌟 configure-pharos-sdk
 
