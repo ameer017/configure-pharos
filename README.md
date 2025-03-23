@@ -241,4 +241,6 @@ node index.js
 ## 🔥 Ready to streamline your smart contract development?
 
 - Run: 
-`bash configure-pharos-sdk init` and get started! 🚀
+```bash 
+configure-pharos-sdk init
+```
