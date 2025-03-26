@@ -219,9 +219,9 @@ contract Token is ERC20 {
     const envPath = path.join(projectDir, ".env");
     if (!fs.existsSync(envPath)) {
       const envContent = `
-RPC_URL=YOUR_ALCHEMY_URL_HERE
-PRIVATE_KEY=YOUR_WALLET_PRIVATE_KEY
-ETHERSCAN_API_KEY=YOUR_ETHERSCAN_API_KEY
+RPC_URL = https://devnet.dplabs-internal.com/
+WALLET_PRIVATE_KEY = YOUR_WALLET_PRIVATE_KEY
+PHAROS_EXPLORER_API= 
       `.trim();
       fs.writeFileSync(envPath, envContent);
       console.log(chalk.green("✅ .env file created!"));
@@ -232,9 +232,10 @@ ETHERSCAN_API_KEY=YOUR_ETHERSCAN_API_KEY
     }
 
     console.log(chalk.blue("\n🚀 Hardhat setup complete! Next steps:"));
-    console.log(chalk.blue("➡️ Run `npx hardhat compile` to verify setup"));
     console.log(
-      chalk.blue("➡️ Run `npx hardhat test` to execute sample tests")
+      chalk.blue(
+        "➡️ To deploy your contract, ensure that you have written the correct deployment setup in ./scripts/deploy.js"
+      )
     );
   } catch (error) {
     console.log(chalk.red(`❌ Hardhat setup failed: ${error.message}`));
@@ -289,16 +290,16 @@ async function setupRust(projectDir) {
 }
 
 function generateHardhatConfig(isTypeScript) {
-  const commonConfig = `solidity: "0.8.18",
-networks: {
-    pharos: {
-      url: "<PHAROS_RPC_URL>",
-      accounts: [vars.get("PRIVATE_KEY")],
-    },
-  },
-etherscan: {
-  apiKey: process.env.ETHERSCAN_API_KEY
-}`;
+  const commonConfig = `solidity: "0.8.20",
+          networks: {
+              pharos: {
+                url: "https://devnet.dplabs-internal.com/",
+                accounts: "You can add your wallet private key here either via .env or hardhat vars system",
+              },
+            },
+          pharosscan: {
+            apiurl: "https://pharosscan.xyz/"
+          }`;
 
   return isTypeScript
     ? `import { HardhatUserConfig } from "hardhat/config";

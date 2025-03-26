@@ -56,7 +56,7 @@ async function deployContract() {
     );
 
     if (config.framework === "Hardhat") {
-      shell.exec("npx hardhat run scripts/deploy.js --network localhost");
+      shell.exec("npx hardhat ignition deploy --network pharos");
     } else if (config.framework === "Foundry") {
       let command = `forge create --private-key ${privateKey} src/contract.sol`;
       if (constructorArgs) {
