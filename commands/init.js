@@ -137,12 +137,10 @@ async function setupSolidity(framework, projectDir, answers) {
   try {
     const contractDir = path.join(projectDir, "smart-contract");
 
-    // Create the smart-contract directory if it doesn't exist
     if (!fs.existsSync(contractDir)) {
       fs.mkdirSync(contractDir, { recursive: true });
     }
 
-    // Copy the entire template folder for the selected framework
     const templatePath = path.join(
       __dirname,
       `../templates/solidity/${framework.toLowerCase()}`
@@ -154,11 +152,9 @@ async function setupSolidity(framework, projectDir, answers) {
 
     console.log("Template path:", templatePath);
     console.log("Contract dir:", contractDir);
-    // Copy all files from template to contract directory
     shell.cp("-R", `${templatePath}/.`, contractDir);
     console.log(chalk.green(`✅ ${framework} template copied successfully!`));
 
-    // Install dependencies
     shell.cd(contractDir);
     if (framework === "Hardhat") {
       console.log(chalk.blue("\n📦 Installing Hardhat dependencies...\n"));
@@ -166,17 +162,32 @@ async function setupSolidity(framework, projectDir, answers) {
       if (installCode !== 0) throw new Error("Dependency installation failed");
     } else if (framework === "Foundry") {
       console.log(chalk.blue("\n📦 Installing Foundry dependencies...\n"));
+
+      // First initialize git if not already initialized
+      if (!fs.existsSync(path.join(contractDir, ".git"))) {
+        const { code: gitInitCode } = shell.exec("git init");
+        if (gitInitCode !== 0) throw new Error("Git initialization failed");
+      }
+
+      // Install dependencies without --force flag
       const { code: installCode } = shell.exec("forge install");
       if (installCode !== 0) throw new Error("Dependency installation failed");
+
+      // Install foundry-std separately if needed
+      const { code: stdInstallCode } = shell.exec(
+        "forge install foundry-rs/foundry-std --no-commit"
+      );
+      if (stdInstallCode !== 0)
+        console.log(chalk.yellow("⚠️ Could not install foundry-std"));
     }
 
     // Create .env file if it doesn't exist
     const envPath = path.join(contractDir, ".env");
     if (!fs.existsSync(envPath)) {
       const envContent = `
-RPC_URL = https://devnet.dplabs-internal.com/
-WALLET_PRIVATE_KEY = YOUR_WALLET_PRIVATE_KEY
-PHAROS_EXPLORER_API= 
+        RPC_URL = https://devnet.dplabs-internal.com/
+        WALLET_PRIVATE_KEY = YOUR_WALLET_PRIVATE_KEY
+        PHAROS_EXPLORER_API= 
       `.trim();
       fs.writeFileSync(envPath, envContent);
       console.log(chalk.green("✅ .env file created!"));
@@ -192,8 +203,6 @@ PHAROS_EXPLORER_API=
   }
 }
 
-// Remove the old setupHardhat and setupFoundry functions since we're using templates
-
 async function setupRust(projectDir) {
   try {
     const contractDir = path.join(projectDir, "smart-contract");
@@ -201,19 +210,47 @@ async function setupRust(projectDir) {
 
     console.log(chalk.blue("\n🔥 Setting up Rust project...\n"));
 
-    const templatePath = path.join(__dirname, "../templates/rust/lib.rs");
-    const rustSrcDir = path.join(contractDir, "src");
-
-    fs.mkdirSync(rustSrcDir, { recursive: true });
-    fs.copyFileSync(templatePath, path.join(rustSrcDir, "lib.rs"));
-    console.log(chalk.green("✅ Rust contract template copied!"));
+    // Clone the specific branch/directory we need
+    const repoUrl = "https://github.com/PharosNetwork/examples";
+    const branch = "main";
+    const targetDir = "token/rust/contract";
 
     shell.cd(contractDir);
-    const { code } = shell.exec("cargo init --lib");
-    if (code !== 0) throw new Error("Cargo initialization failed");
+
+    // Use sparse checkout to only get the needed directory
+    console.log(chalk.blue("⏳ Cloning repository..."));
+    const { code: cloneCode } = shell.exec(`
+      git clone --filter=blob:none --no-checkout --depth 1 --branch ${branch} ${repoUrl} tmp-repo && 
+      cd tmp-repo && 
+      git sparse-checkout init --cone && 
+      git sparse-checkout set ${targetDir} && 
+      git checkout && 
+      cd ..
+    `);
+
+    if (cloneCode !== 0) throw new Error("Git clone failed");
+
+    // Move the contract files to the main contract directory
+    const sourcePath = path.join(contractDir, "tmp-repo", targetDir);
+    fs.readdirSync(sourcePath).forEach((file) => {
+      fs.renameSync(path.join(sourcePath, file), path.join(contractDir, file));
+    });
+
+    // Clean up
+    fs.rmSync(path.join(contractDir, "tmp-repo"), {
+      recursive: true,
+      force: true,
+    });
 
     console.log(chalk.green("\n✅ Rust project configured successfully!"));
   } catch (error) {
+    // Clean up in case of error
+    if (fs.existsSync(path.join(contractDir, "tmp-repo"))) {
+      fs.rmSync(path.join(contractDir, "tmp-repo"), {
+        recursive: true,
+        force: true,
+      });
+    }
     throw new Error(`Rust setup failed: ${error.message}`);
   }
 }

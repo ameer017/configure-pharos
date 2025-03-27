@@ -204,12 +204,27 @@ async function deployContract() {
           true
         );
 
+        // Get contract file path
         const contractPath = await getUserInput(
           chalk.yellow(
-            "\n📜 Enter path to contract (e.g., src/Contract.sol): "
+            "\n📜 Enter path to contract file (e.g., src/Counter.sol): "
           ),
           true
         );
+
+        // Extract contract name from file (defaults to filename without extension)
+        let contractName = path.basename(contractPath, ".sol");
+
+        // Allow override of contract name
+        contractName =
+          (await getUserInput(
+            chalk.yellow(`\n📜 Enter contract name [${contractName}]: `)
+          )) || contractName;
+
+        // Format the contract identifier correctly
+        const contractIdentifier = `${contractPath}:${contractName}`;
+
+        let command = `forge create --private-key ${privateKey} ${contractIdentifier} --rpc-url https://devnet.dplabs-internal.com/`;
 
         const constructorArgs = await getUserInput(
           chalk.yellow(
@@ -217,7 +232,6 @@ async function deployContract() {
           )
         );
 
-        let command = `forge create --private-key ${privateKey} ${contractPath} --rpc-url https://devnet.dplabs-internal.com/`;
         if (constructorArgs) {
           command += ` --constructor-args ${constructorArgs}`;
         }

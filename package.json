@@ -23,6 +23,7 @@
     "dotenv": "^16.4.7",
     "enquirer": "^2.4.1",
     "inquirer": "^12.4.3",
+    "ora": "^5.4.1",
     "shelljs": "^0.9.1"
   },
   "exports": {

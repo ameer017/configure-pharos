@@ -34,13 +34,19 @@ async function compileContracts() {
   } else if (config.contractType === "Rust (WASM)") {
     console.log(chalk.blue("\n🔨 Building Rust WASM contract...\n"));
 
-    shell.exec("cargo build --release --target wasm32-unknown-unknown");
+    // Install cargo-contract if not exists
+    if (!shell.which("cargo-contract")) {
+      console.log(chalk.blue("Installing cargo-contract..."));
+      const { code } = shell.exec("cargo install cargo-contract --force");
+      if (code !== 0) throw new Error("Failed to install cargo-contract");
+    }
 
-    console.log(
-      chalk.green(
-        "\n✅ Rust WASM compilation complete! Your .wasm file is in the `target/wasm32-unknown-unknown/release/` directory.\n"
-      )
-    );
+    // Build the contract
+    const { code: buildCode } = shell.exec("cargo contract build");
+    if (buildCode !== 0) throw new Error("Rust compilation failed");
+
+    console.log(chalk.green("\n✅ Rust WASM compilation complete!"));
+    console.log(chalk.blue("Your .wasm file is in the target/ink/ directory"));
   } else {
     console.log(chalk.red("\n❌ Error: Unsupported contract type.\n"));
     process.exit(1);

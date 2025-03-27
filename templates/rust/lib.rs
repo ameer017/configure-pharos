@@ -1,47 +1,103 @@
-use ferris_says::say;
-use std::io::{self, stdout, BufWriter, Write};
+// Simple Counter DApp in Rust (No dependencies)
 
-/// Prints a message using Ferris the Crab.
-///
-/// # Arguments
-/// * `message` - The message to display.
-///
-/// # Errors
-/// Returns an `io::Error` if writing to stdout fails.
-pub fn print_message(message: &str) -> io::Result<()> {
-    let stdout = stdout();
-    let width = message.chars().count();
+use std::collections::HashMap;
+use std::io;
 
-    // Create a buffered writer for stdout
-    let mut writer = BufWriter::new(stdout.lock());
-
-    // Print the message using Ferris
-    say(message, width, &mut writer)?;
-
-    // Flush the buffer to ensure the message is printed
-    writer.flush()?;
-
-    Ok(())
+// Our "blockchain" state - in a real DApp this would be stored on-chain
+struct Blockchain {
+    accounts: HashMap<String, Account>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::io::Cursor;
+struct Account {
+    balance: u64,
+    counters: HashMap<String, i64>, // Each account can have multiple counters
+}
 
-    /// Tests the `print_message` function by capturing its output.
-    #[test]
-    fn test_print_message() {
-        let message = "Hello, world!";
-        let mut output = Vec::new();
-        let mut writer = BufWriter::new(Cursor::new(&mut output));
+impl Blockchain {
+    fn new() -> Self {
+        Blockchain {
+            accounts: HashMap::new(),
+        }
+    }
 
-        // Simulate printing the message
-        say(message, message.chars().count(), &mut writer).unwrap();
-        writer.flush().unwrap();
+    fn get_or_create_account(&mut self, address: &str) -> &mut Account {
+        if !self.accounts.contains_key(address) {
+            self.accounts.insert(address.to_string(), Account {
+                balance: 100, // Starting balance
+                counters: HashMap::new(),
+            });
+        }
+        self.accounts.get_mut(address).unwrap()
+    }
 
-        // Verify the output contains the message
-        let output_str = String::from_utf8(output).unwrap();
-        assert!(output_str.contains(message));
+    fn create_counter(&mut self, address: &str, counter_name: &str) {
+        let account = self.get_or_create_account(address);
+        account.counters.insert(counter_name.to_string(), 0);
+    }
+
+    fn increment_counter(&mut self, address: &str, counter_name: &str) -> Result<(), String> {
+        let account = self.get_or_create_account(address);
+        if let Some(counter) = account.counters.get_mut(counter_name) {
+            *counter += 1;
+            Ok(())
+        } else {
+            Err(format!("Counter '{}' not found", counter_name))
+        }
+    }
+
+    fn decrement_counter(&mut self, address: &str, counter_name: &str) -> Result<(), String> {
+        let account = self.get_or_create_account(address);
+        if let Some(counter) = account.counters.get_mut(counter_name) {
+            *counter -= 1;
+            Ok(())
+        } else {
+            Err(format!("Counter '{}' not found", counter_name))
+        }
+    }
+
+    fn get_counter(&self, address: &str, counter_name: &str) -> Option<i64> {
+        self.accounts.get(address)
+            .and_then(|account| account.counters.get(counter_name))
+            .copied()
+    }
+}
+
+fn main() {
+    println!("Simple Counter DApp");
+    println!("-------------------");
+
+    let mut blockchain = Blockchain::new();
+
+    // For simplicity, we'll use a fixed account address
+    let address = "user1";
+
+    // Create a default counter
+    blockchain.create_counter(address, "default");
+
+    loop {
+        println!("\nCurrent counter value: {}", 
+            blockchain.get_counter(address, "default").unwrap_or(0));
+        println!("Choose an action:");
+        println!("1. Increment counter");
+        println!("2. Decrement counter");
+        println!("3. Exit");
+
+        let mut choice = String::new();
+        io::stdin().read_line(&mut choice).expect("Failed to read line");
+
+        match choice.trim() {
+            "1" => {
+                if let Err(e) = blockchain.increment_counter(address, "default") {
+                    println!("Error: {}", e);
+                }
+            },
+            "2" => {
+                if let Err(e) = blockchain.decrement_counter(address, "default") {
+                    println!("Error: {}", e);
+                }
+            },
+            "3" => break,
+            _ => println!("Invalid choice"),
+        }
     }
 }
