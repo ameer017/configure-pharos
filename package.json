@@ -31,5 +31,8 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     }
+  },
+  "devDependencies": {
+    "hardhat": "^2.22.19"
   }
 }

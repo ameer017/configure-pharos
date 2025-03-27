@@ -44,25 +44,86 @@ async function deployContract() {
   );
 
   if (config.contractType === "Solidity (EVM)") {
-    const privateKey = await getUserInput(
-      chalk.yellow("\n🔑 Enter your private key: "),
-      true
-    );
-
-    let constructorArgs = await getUserInput(
-      chalk.yellow(
-        "\n📜 Enter constructor arguments (space-separated, or press Enter to skip): "
-      )
-    );
-
     if (config.framework === "Hardhat") {
-      shell.exec("npx hardhat ignition deploy --network pharos");
+      console.log(chalk.blue("\nInitializing Hardhat deployment\n"));
+
+      // Get deployment script path from user
+      const defaultScriptPath = "ignition/modules/Contract.ts";
+      const scriptPath =
+        (await getUserInput(
+          chalk.yellow(
+            `\n📜 Enter path to deployment script [${defaultScriptPath}]: `
+          )
+        )) || defaultScriptPath;
+
+      // Verify script exists
+      if (!fs.existsSync(scriptPath)) {
+        console.log(
+          chalk.red(`\n❌ Deployment script not found at: ${scriptPath}\n`)
+        );
+        process.exit(1);
+      }
+
+      // Get deployment ID from user
+      const deploymentId =
+        (await getUserInput(
+          chalk.yellow("\n🆔 Enter deployment ID [pharos-deployment]: ")
+        )) || "pharos-deployment";
+
+      // Get confirmation
+      const confirm = await getUserInput(
+        chalk.yellow("\n⚠️ Confirm deploy to network pharos (50002)? [y/N]: ")
+      );
+
+      if (confirm.toLowerCase() !== "y") {
+        console.log(chalk.yellow("\n🚫 Deployment cancelled by user\n"));
+        process.exit(0);
+      }
+
+      console.log(chalk.blue("\n🔧 Starting deployment...\n"));
+
+      // Execute deployment
+      const command = `npx hardhat ignition deploy ${scriptPath} --network pharos --deployment-id ${deploymentId}`;
+      console.log(chalk.blue(`\n⚙️ Running: ${command}\n`));
+      const result = shell.exec(command);
+
+      if (result.code !== 0) {
+        console.log(
+          chalk.red("\n❌ Deployment failed! See above for errors.\n")
+        );
+        process.exit(1);
+      }
     } else if (config.framework === "Foundry") {
-      let command = `forge create --private-key ${privateKey} src/contract.sol`;
+      const privateKey = await getUserInput(
+        chalk.yellow("\n🔑 Enter your private key: "),
+        true
+      );
+
+      const contractPath = await getUserInput(
+        chalk.yellow("\n📜 Enter path to contract (e.g., src/Contract.sol): "),
+        true
+      );
+
+      const constructorArgs = await getUserInput(
+        chalk.yellow(
+          "\n📜 Enter constructor arguments (space-separated, or press Enter to skip): "
+        )
+      );
+
+      let command = `forge create --private-key ${privateKey} ${contractPath} --rpc-url https://devnet.dplabs-internal.com/`;
       if (constructorArgs) {
         command += ` --constructor-args ${constructorArgs}`;
       }
-      shell.exec(command);
+
+      console.log(chalk.blue(`\n⚙️ Running: ${command}\n`));
+      const result = shell.exec(command);
+
+      if (result.code !== 0) {
+        console.log(
+          chalk.red("\n❌ Deployment failed! See above for errors.\n")
+        );
+        process.exit(1);
+      }
     }
   } else if (config.contractType === "Rust (WASM)") {
     console.log(chalk.blue("\n📡 Deploying Rust WASM contract...\n"));
@@ -76,7 +137,12 @@ async function deployContract() {
       process.exit(1);
     }
 
-    shell.exec("cargo contract deploy");
+    const result = shell.exec("cargo contract deploy");
+    if (result.code !== 0) {
+      console.log(chalk.red("\n❌ Deployment failed! See above for errors.\n"));
+      process.exit(1);
+    }
+
     console.log(
       chalk.green("\n✅ Rust WASM contract deployed successfully!\n")
     );

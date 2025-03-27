@@ -136,87 +136,42 @@ async function checkPrerequisites(framework) {
 async function setupSolidity(framework, projectDir, answers) {
   try {
     const contractDir = path.join(projectDir, "smart-contract");
-    fs.mkdirSync(contractDir, { recursive: true });
 
+    // Create the smart-contract directory if it doesn't exist
+    if (!fs.existsSync(contractDir)) {
+      fs.mkdirSync(contractDir, { recursive: true });
+    }
+
+    // Copy the entire template folder for the selected framework
     const templatePath = path.join(
       __dirname,
-      "../templates/solidity/contract.sol"
+      `../templates/solidity/${framework.toLowerCase()}`
     );
 
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(`Template not found for ${framework}`);
+    }
+
+    console.log("Template path:", templatePath);
+    console.log("Contract dir:", contractDir);
+    // Copy all files from template to contract directory
+    shell.cp("-R", `${templatePath}/.`, contractDir);
+    console.log(chalk.green(`✅ ${framework} template copied successfully!`));
+
+    // Install dependencies
+    shell.cd(contractDir);
     if (framework === "Hardhat") {
-      const destinationPath = path.join(
-        contractDir,
-        "contracts",
-        "contract.sol"
-      );
-      fs.mkdirSync(path.join(contractDir, "contracts"), { recursive: true });
-      fs.copyFileSync(templatePath, destinationPath);
-      console.log(
-        chalk.green("✅ Solidity contract template copied for Hardhat!")
-      );
-      await setupHardhat(contractDir, answers);
+      console.log(chalk.blue("\n📦 Installing Hardhat dependencies...\n"));
+      const { code: installCode } = shell.exec("npm install");
+      if (installCode !== 0) throw new Error("Dependency installation failed");
     } else if (framework === "Foundry") {
-      const destinationPath = path.join(contractDir, "src", "Contract.sol");
-      fs.mkdirSync(path.join(contractDir, "src"), { recursive: true });
-      fs.copyFileSync(templatePath, destinationPath);
-      console.log(
-        chalk.green("✅ Solidity contract template copied for Foundry!")
-      );
-      await setupFoundry(contractDir);
+      console.log(chalk.blue("\n📦 Installing Foundry dependencies...\n"));
+      const { code: installCode } = shell.exec("forge install");
+      if (installCode !== 0) throw new Error("Dependency installation failed");
     }
-  } catch (error) {
-    throw new Error(`Solidity setup failed: ${error.message}`);
-  }
-}
 
-async function setupHardhat(projectDir, answers) {
-  try {
-    console.log(chalk.blue("\n🔨 Setting up Hardhat environment...\n"));
-
-    shell.cd(projectDir);
-
-    // Manually create Hardhat project files instead of running `npx hardhat`
-    const isTypeScript = answers.scriptType === "TypeScript";
-    const configFile = `hardhat.config.${isTypeScript ? "ts" : "js"}`;
-
-    console.log(chalk.blue("\n📦 Installing Hardhat dependencies...\n"));
-    const installCmd = `npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox${
-      isTypeScript
-        ? " typescript ts-node @types/node @nomicfoundation/hardhat-ethers"
-        : ""
-    }`;
-
-    const { code: installCode } = shell.exec(installCmd);
-    if (installCode !== 0) throw new Error("Dependency installation failed");
-
-    // Generate Hardhat config manually
-    const hardhatConfig = generateHardhatConfig(isTypeScript);
-    fs.writeFileSync(path.join(projectDir, configFile), hardhatConfig);
-    console.log(chalk.green(`✅ Hardhat configured (${configFile})!`));
-
-    // Create sample folders
-    shell.mkdir("-p", "contracts", "scripts", "test");
-
-    // Create a sample Solidity contract
-    const contractTemplate = `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-contract Token is ERC20 {
-    constructor(uint256 initialSupply) ERC20("Token", "MTK") {
-        _mint(msg.sender, initialSupply);
-    }
-}`;
-
-    fs.writeFileSync(
-      path.join(projectDir, "contracts/Token.sol"),
-      contractTemplate
-    );
-    console.log(chalk.green("✅ Sample Solidity contract created!"));
-
-    // Create a .env file only if it doesn't exist
-    const envPath = path.join(projectDir, ".env");
+    // Create .env file if it doesn't exist
+    const envPath = path.join(contractDir, ".env");
     if (!fs.existsSync(envPath)) {
       const envContent = `
 RPC_URL = https://devnet.dplabs-internal.com/
@@ -231,39 +186,13 @@ PHAROS_EXPLORER_API=
       );
     }
 
-    console.log(chalk.blue("\n🚀 Hardhat setup complete! Next steps:"));
-    console.log(
-      chalk.blue(
-        "➡️ To deploy your contract, ensure that you have written the correct deployment setup in ./scripts/deploy.js"
-      )
-    );
+    console.log(chalk.green(`\n✅ ${framework} setup completed successfully!`));
   } catch (error) {
-    console.log(chalk.red(`❌ Hardhat setup failed: ${error.message}`));
+    throw new Error(`Solidity setup failed: ${error.message}`);
   }
 }
 
-async function setupFoundry(projectDir) {
-  try {
-    console.log(chalk.blue("\n🔥 Setting up Foundry...\n"));
-    shell.cd(projectDir);
-
-    const { code } = shell.exec("forge init --no-commit --force");
-    if (code !== 0) throw new Error("Foundry initialization failed");
-
-    const foundryConfig = `[profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
-solc_version = "0.8.20"
-optimizer = true
-optimizer_runs = 200`;
-
-    fs.writeFileSync(path.join(projectDir, "foundry.toml"), foundryConfig);
-    console.log(chalk.green("✅ Foundry configured!"));
-  } catch (error) {
-    throw new Error(`Foundry setup failed: ${error.message}`);
-  }
-}
+// Remove the old setupHardhat and setupFoundry functions since we're using templates
 
 async function setupRust(projectDir) {
   try {
@@ -287,34 +216,6 @@ async function setupRust(projectDir) {
   } catch (error) {
     throw new Error(`Rust setup failed: ${error.message}`);
   }
-}
-
-function generateHardhatConfig(isTypeScript) {
-  const commonConfig = `solidity: "0.8.20",
-          networks: {
-              pharos: {
-                url: "https://devnet.dplabs-internal.com/",
-                accounts: "You can add your wallet private key here either via .env or hardhat vars system",
-              },
-            },
-          pharosscan: {
-            apiurl: "https://pharosscan.xyz/"
-          }`;
-
-  return isTypeScript
-    ? `import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-
-const config: HardhatUserConfig = {
-  ${commonConfig}
-};
-
-export default config;`
-    : `require("@nomicfoundation/hardhat-toolbox");
-
-module.exports = {
-  ${commonConfig}
-};`;
 }
 
 async function setupFrontend(frontend, projectDir) {
