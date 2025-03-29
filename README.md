@@ -1,13 +1,13 @@
 <p align="center">
 
  <img width="500px" src="https://pbs.twimg.com/profile_banners/1785241793787043840/1736737016/1500x500" alt="Pharos" />
-   <h1 align="center">🌟 configure-pharos-sdk</h1>
+   <h1 align="center">🌟 pharos-config-cli</h1>
 
 </p>
 
 ### 🏗️ Smart Contract SDK & Deployment Pipelines
 
-**configure-pharos-sdk** is a robust command-line interface (CLI) designed to simplify the development, compilation, testing, and deployment of smart contracts. It supports both Solidity (EVM) and Rust (WASM) environments, offering seamless integration with leading frameworks like Hardhat, Foundry, and Cargo.
+**pharos-config-cli** is a robust command-line interface (CLI) designed to simplify the development, compilation, testing, and deployment of smart contracts. It supports both Solidity (EVM) and Rust (WASM) environments, offering seamless integration with leading frameworks like Hardhat, Foundry, and Cargo.
 
 ## 🎯 Key Features
 
@@ -48,7 +48,7 @@ curl -L https://foundry.paradigm.xyz | bash
 You can install Pharos globally using NPM:
 
 ```bash
-npm install -g configure-pharos-sdk
+npm install -g pharos-config-cli
 ```
 
 To verify that Pharos is installed correctly, run:
@@ -62,7 +62,7 @@ pharos --version
 ### 1️⃣ Initialize a New Project
 
 ```bash
-configure-pharos-sdk init
+pharos-config-cli init
 ```
 
 📌 You will be prompted to choose:
@@ -76,7 +76,7 @@ configure-pharos-sdk init
 ### 2️⃣ Compile Contracts
 
 ```bash
-configure-pharos-sdk compile
+pharos-config-cli compile
 ```
 
 💡 What happens?
@@ -90,7 +90,7 @@ If compilation is successful, the contract bytecode will be generated and stored
 ### 3️⃣ Run Tests
 
 ```bash
-configure-pharos-sdk test
+pharos-config-cli test
 ```
 
 🛠 Framework-Specific Test Execution:
@@ -102,7 +102,7 @@ configure-pharos-sdk test
 ### 4️⃣ Deploy Your Contract
 
 ```bash
-configure-pharos-sdk deploy
+pharos-config-cli deploy
 ```
 
 🚀 Deployment Process:
@@ -115,7 +115,7 @@ configure-pharos-sdk deploy
 
 ## 📁 Project Structure
 
-After running `configure-pharos-sdk init`, your project will be structured as follows:
+After running `pharos-config-cli init`, your project will be structured as follows:
 
 ```bash
 /project-root
@@ -146,7 +146,7 @@ After running `configure-pharos-sdk init`, your project will be structured as fo
 - Foundry projects do not require a `contracts/` directory but instead use `.sol` files directly.
 - Rust projects use `src/lib.rs` and `Cargo.toml` for configuration.
 
-- If a frontend framework is selected, configure-pharos-sdk generates a basic template.
+- If a frontend framework is selected, pharos-config-cli generates a basic template.
 - Supports React (Vite) by default.
 
 ## ⚙️ Configuration File (pharos-config.json)
@@ -189,8 +189,8 @@ cargo contract deploy --url ws://127.0.0.1:9944
 
 | Error                                     | Solution                                               |
 | ----------------------------------------- | ------------------------------------------------------ |
-| ❌ No Pharos project found.               | Run `configure-pharos-sdk init` first.                 |
-| ❌ Rust contract not compiled.            | Run `configure-pharos-sdk compile` before testing.     |
+| ❌ No Pharos project found.               | Run `pharos-config-cli init` first.                 |
+| ❌ Rust contract not compiled.            | Run `pharos-config-cli compile` before testing.     |
 | ⚠️ No supported contract framework found! | Ensure you're inside a valid Pharos project directory. |
 | Error: Cargo not found                    | Ensure Rust and Cargo are installed (`rustup show`).   |
 
@@ -199,7 +199,7 @@ cargo contract deploy --url ws://127.0.0.1:9944
 To update to the latest version of Pharos CLI:
 
 ```bash
-npm update -g configure-pharos-sdk
+npm update -g pharos-config-cli
 ```
 
 ## 📝 Contribution Guide
@@ -228,7 +228,7 @@ node index.js
 
 ## 📄 License
 
-**configure-pharos-sdk** is licensed under the MIT License.
+**pharos-config-cli** is licensed under the MIT License.
 
 ## 🤝 Get Involved
 
@@ -242,5 +242,5 @@ node index.js
 
 - Run: 
 ```bash 
-configure-pharos-sdk init
+pharos-config-cli init
 ```
