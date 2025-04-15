@@ -1,5 +1,5 @@
 import "./constant/connection";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import "./index.css";
 
@@ -9,6 +9,7 @@ function App() {
   const [number, setNumber] = useState(0);
   const [newNumber, setNewNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isIncreasing, setIsIncreasing] = useState(false);
 
   async function getContract() {
     if (!window.ethereum) {
@@ -22,22 +23,21 @@ function App() {
     return new Contract(contractABI.address, contractABI.abi, signer);
   }
 
-  useEffect(() => {
-    async function fetchNumber() {
-      const contract = await getContract();
-      if (!contract) {
-        console.error("Contract not initialized");
-        return;
-      }
-
-      try {
-        const num = await contract.number();
-        setNumber(num.toString());
-      } catch (error) {
-        console.error("Error fetching number:", error);
-      }
+  const fetchNumber = async () => {
+    const contract = await getContract();
+    if (!contract) {
+      console.error("Contract not initialized");
+      return;
     }
+    try {
+      const num = await contract.number();
+      setNumber(num.toString());
+    } catch (error) {
+      console.error("Error fetching number:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchNumber();
   }, []);
 
@@ -49,6 +49,7 @@ function App() {
     try {
       const tx = await contract.setNumber(newNumber);
       await tx.wait();
+      await fetchNumber();
     } catch (error) {
       console.error("Error setting number:", error);
     }
@@ -60,10 +61,13 @@ function App() {
     if (!contract) return;
 
     try {
+      isIncreasing(true);
       const tx = await contract.increment();
-      const receipt = await tx.wait();
-      console.log(receipt);
+      await tx.wait();
+      isIncreasing(false);
+      await fetchNumber();
     } catch (error) {
+      isIncreasing(false);
       console.error("Error incrementing number:", error);
     }
   }
@@ -93,6 +97,7 @@ function App() {
 
       <appkit-button size="md" />
       {isLoading && <p>⏳ Transaction in progress...</p>}
+      {isIncreasing && <p> ⬆️ Incrementing {number} ...</p>}
     </div>
   );
 }
