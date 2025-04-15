@@ -1,5 +1,5 @@
 import "./constant/connection";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import "./index.css";
 
@@ -61,13 +61,13 @@ function App() {
     if (!contract) return;
 
     try {
-      isIncreasing(true);
+      setIsIncreasing(true);
       const tx = await contract.increment();
       await tx.wait();
-      isIncreasing(false);
+      setIsIncreasing(false);
       await fetchNumber();
     } catch (error) {
-      isIncreasing(false);
+      setIsIncreasing(false);
       console.error("Error incrementing number:", error);
     }
   }
