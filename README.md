@@ -234,7 +234,7 @@ node index.js
 
 🚀 Join the Pharos CLI community and contribute to the future of smart contract development!
 
-- 📧 Email: [Raji Abdullahi](mailto:rajiabdullahi907@gmail.com)
+- 📧 Email: [Al Ameer](mailto:rajiabdullahi907@gmail.com)
 - 🐦 Twitter: [@alAmeer170](https://twitter.com/alAmeer170)
 - 📘 GitHub: [Pharos CLI Repo](https://github.com/ameer017/configure-pharos.git)
 
