@@ -57,7 +57,7 @@ To verify that Pharos is installed correctly, run:
 pharos --version
 ```
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### 1️⃣ Initialize a New Project
 

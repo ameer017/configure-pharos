@@ -12,13 +12,14 @@ const config: ExtendedHardhatUserConfig = {
   solidity: "0.8.20",
   networks: {
     pharos: {
-      url: "https://devnet.dplabs-internal.com/",
+      url: "https://testnet.dplabs-internal.com/",
       accounts: [process.env.WALLET_PRIVATE_KEY || ""],
-      chainId: 50002
+      chainId: 688688
+
     },
   },
   pharosscan: {
-    apiurl: "https://pharosscan.xyz/",
+    apiurl: "https://testnet.pharosscan.xyz/"
   },
 };
 

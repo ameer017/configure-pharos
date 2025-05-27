@@ -5,25 +5,25 @@ import { defineChain } from "@reown/appkit/networks";
 // 1. Get projectId
 const projectId = "";
 
-const pharosDevnet = defineChain({
-  id: 50002,
-  caipNetworkId: "eip155:50002",
+const pharosTestnet = defineChain({
+  id: 688688,
+  caipNetworkId: "eip155:688688",
   chainNamespace: "eip155",
-  name: "Pharos Devnet",
+  name: "Pharos Testnet",
   nativeCurrency: {
     decimals: 18,
-    name: "PPT",
-    symbol: "PPT",
+    name: "Pharos Testnet",
+    symbol: "PHRS",
   },
   rpcUrls: {
     default: {
-      http: ["https://devnet.dplabs-internal.com/"],
+      http: ["https://testnet.dplabs-internal.com/"],
     },
   },
   blockExplorers: {
     default: {
       name: "Pharos Scan",
-      url: "https://pharosscan.xyz/",
+      url: "https://testnet.pharosscan.xyz",
     },
   },
   contracts: {
@@ -31,7 +31,7 @@ const pharosDevnet = defineChain({
   },
 });
 // 2. Set the networks
-const networks = [pharosDevnet];
+const networks = [pharosTestnet];
 
 // 3. Create a metadata object - optional
 const metadata = {
