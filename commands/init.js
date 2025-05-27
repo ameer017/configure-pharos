@@ -185,9 +185,9 @@ async function setupSolidity(framework, projectDir, answers) {
     const envPath = path.join(contractDir, ".env");
     if (!fs.existsSync(envPath)) {
       const envContent = `
-        RPC_URL = https://devnet.dplabs-internal.com/
+        RPC_URL = https://testnet.dplabs-internal.com/
         WALLET_PRIVATE_KEY = YOUR_WALLET_PRIVATE_KEY
-        PHAROS_EXPLORER_API= 
+        PHAROS_EXPLORER_API= https://testnet.pharosscan.xyz/
       `.trim();
       fs.writeFileSync(envPath, envContent);
       console.log(chalk.green("✅ .env file created!"));

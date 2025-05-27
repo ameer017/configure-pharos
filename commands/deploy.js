@@ -48,7 +48,7 @@ async function checkNetworkAvailability() {
   try {
     console.log(chalk.blue("\n🌐 Checking network availability..."));
     const result = shell.exec(
-      `curl -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_version","params":[],"id":1}' https://devnet.dplabs-internal.com/`,
+      `curl -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"net_version","params":[],"id":1}' https://testnet.dplabs-internal.com/`,
       { silent: true }
     );
     if (result.code !== 0) {
@@ -180,15 +180,6 @@ async function deployContract() {
             chalk.yellow("\n🆔 Enter deployment ID [pharos-deployment]: ")
           )) || "pharos-deployment";
 
-        // Get confirmation
-        const confirm = await getUserInput(
-          chalk.yellow("\n⚠️ Confirm deploy to network pharos (50002)? [y/N]: ")
-        );
-
-        if (confirm.toLowerCase() !== "y") {
-          console.log(chalk.yellow("\n🚫 Deployment cancelled by user\n"));
-          process.exit(0);
-        }
 
         // Execute deployment
         try {
@@ -224,7 +215,7 @@ async function deployContract() {
         // Format the contract identifier correctly
         const contractIdentifier = `${contractPath}:${contractName}`;
 
-        let command = `forge create --private-key ${privateKey} ${contractIdentifier} --rpc-url https://devnet.dplabs-internal.com/`;
+        let command = `forge create --private-key ${privateKey} ${contractIdentifier} --rpc-url https://testnet.dplabs-internal.com/`;
 
         const constructorArgs = await getUserInput(
           chalk.yellow(

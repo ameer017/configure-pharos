@@ -50,6 +50,7 @@ function App() {
       const tx = await contract.setNumber(newNumber);
       await tx.wait();
       await fetchNumber();
+      setNewNumber("");
     } catch (error) {
       console.error("Error setting number:", error);
     }
