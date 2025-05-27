@@ -189,8 +189,8 @@ cargo contract deploy --url ws://127.0.0.1:9944
 
 | Error                                     | Solution                                               |
 | ----------------------------------------- | ------------------------------------------------------ |
-| ❌ No Pharos project found.               | Run `pharos-config-cli init` first.                 |
-| ❌ Rust contract not compiled.            | Run `pharos-config-cli compile` before testing.     |
+| ❌ No Pharos project found.               | Run `pharos-config-cli init` first.                    |
+| ❌ Rust contract not compiled.            | Run `pharos-config-cli compile` before testing.        |
 | ⚠️ No supported contract framework found! | Ensure you're inside a valid Pharos project directory. |
 | Error: Cargo not found                    | Ensure Rust and Cargo are installed (`rustup show`).   |
 
@@ -230,6 +230,10 @@ node index.js
 
 **pharos-config-cli** is licensed under the MIT License.
 
+## 📄 Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history.
+
 ## 🤝 Get Involved
 
 🚀 Join the Pharos CLI community and contribute to the future of smart contract development!
@@ -240,7 +244,8 @@ node index.js
 
 ## 🔥 Ready to streamline your smart contract development?
 
-- Run: 
-```bash 
+- Run:
+
+```bash
 pharos-config-cli init
 ```

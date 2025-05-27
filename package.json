@@ -1,6 +1,6 @@
 {
   "name": "pharos-config-cli",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "A robust command-line interface (CLI) designed to simplify the development, compilation, testing, and deployment of smart contracts on Pharos Network. It supports both Solidity (EVM) and Rust (WASM) environments, offering seamless integration with leading frameworks like Hardhat, Foundry, and Cargo.",
   "bin": {
     "pharos-config-cli": "./index.js"
